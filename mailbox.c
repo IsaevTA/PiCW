@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include <stdint.h>
 #include <sys/mman.h>
+#include <sys/sysmacros.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
@@ -245,6 +246,8 @@ int mbox_open() {
     int file_desc;
 
     // Open a char device file used for communicating with kernel mbox driver.
+  
+    // try to use the device node in /dev first (created by kernels 4.1+)
     file_desc = open(DEVICE_FILE_NAME, 0);
     if(file_desc >= 0) {
         //printf("Using mbox device " DEVICE_FILE_NAME ".\n");
@@ -255,18 +258,19 @@ int mbox_open() {
     unlink(LOCAL_DEVICE_FILE_NAME);
     if(mknod(LOCAL_DEVICE_FILE_NAME, S_IFCHR|0600, makedev(MAJOR_NUM_A, 0)) >= 0 &&
         (file_desc = open(LOCAL_DEVICE_FILE_NAME, 0)) >= 0) {
-        //printf("Using local mbox device file with major %d.\n", MAJOR_NUM_A);
+        printf("Using local mbox device file with major %d.\n", MAJOR_NUM_A);
         return file_desc;
     }
 
     unlink(LOCAL_DEVICE_FILE_NAME);
     if(mknod(LOCAL_DEVICE_FILE_NAME, S_IFCHR|0600, makedev(MAJOR_NUM_B, 0)) >= 0 &&
         (file_desc = open(LOCAL_DEVICE_FILE_NAME, 0)) >= 0) {
-        //printf("Using local mbox device file with major %d.\n", MAJOR_NUM_B);
+        printf("Using local mbox device file with major %d.\n", MAJOR_NUM_B);
         return file_desc;
     }
 
-    return -1;
+    printf("Unable to open / create kernel mbox device file, abort!\n");
+    exit (-1);
 }
 
 void mbox_close(int file_desc) {
