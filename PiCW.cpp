@@ -1130,12 +1130,12 @@ void morse_table_init(
 
 // Create the mbox special files and open mbox.
 void open_mbox() {
-  unlink(DEVICE_FILE_NAME);
-  unlink(LOCAL_DEVICE_FILE_NAME);
-  if (mknod(DEVICE_FILE_NAME, S_IFCHR|0600, makedev(100, 0)) < 0) {
-    std::cerr << "Failed to create mailbox device." << std::endl;
-    ABORT(-1);
-  }
+  //unlink(DEVICE_FILE_NAME);
+  //unlink(LOCAL_DEVICE_FILE_NAME);
+  //if (mknod(DEVICE_FILE_NAME, S_IFCHR|0600, makedev(100, 0)) < 0) {
+  //  std::cerr << "Failed to create mailbox device." << std::endl;
+  //  ABORT(-1);
+  //}
   mbox.handle = mbox_open();
   if (mbox.handle < 0) {
     std::cerr << "Failed to open mailbox." << std::endl;
@@ -1148,7 +1148,7 @@ void cleanup() {
   disable_clock();
   unSetupDMA();
   deallocMemPool();
-  unlink(DEVICE_FILE_NAME);
+  //unlink(DEVICE_FILE_NAME);
   unlink(LOCAL_DEVICE_FILE_NAME);
 }
 
